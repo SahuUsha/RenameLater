@@ -34,6 +34,7 @@ npm install --save-dev nodemon
  easy way to install
  npm i -D nodemon
 
+ read documentation
 
  then go to package.json
  "scripts": {
@@ -48,3 +49,16 @@ npm install --save-dev nodemon
  Create Manually with Semicolon Separation
 
   mkdir controllars; mkdir db; mkdir middleware; mkdir models; mkdir routes; mkdir utils
+
+plug-in
+prettier : add if you are working in group and on any project
+if help to solve issues like one team member is using semicolon and and other is not
+
+install-->prettier
+
+read documentation
+
+dev-depdendencies : npm i -D prettier
+we need to add two-three which is necessary:
+1. prettier
+2. prettierignore

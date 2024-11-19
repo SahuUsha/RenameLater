@@ -6,8 +6,6 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js"
-  
-
   },
   "keywords": [
     "node",
@@ -21,6 +19,7 @@
     "mongoose": "^8.8.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
   }
 }
