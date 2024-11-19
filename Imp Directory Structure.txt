@@ -43,3 +43,8 @@ npm install --save-dev nodemon
 
   to resolve issues of environent variable and module
   require('dotenv').config()
+
+  to cteate folder in src by commit--> 
+ Create Manually with Semicolon Separation
+
+  mkdir controllars; mkdir db; mkdir middleware; mkdir models; mkdir routes; mkdir utils
