@@ -1,0 +1,22 @@
+directory struture
+1.DB -> database connection
+2. Model --> for schema
+3.Controllers
+4.Routes
+5. Middleware
+Utils
+more(depends)
+
+
+install express:
+npm install express
+
+
+moon modeler  -->epensive
+ it is used for data modeling
+
+
+eraser modeling, prisma
+
+
+in video number 3 --> use stackBliz--> it is like editor -->where we can use any environent
