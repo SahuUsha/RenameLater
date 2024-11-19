@@ -20,3 +20,26 @@ eraser modeling, prisma
 
 
 in video number 3 --> use stackBliz--> it is like editor -->where we can use any environent
+
+thirdparty we use to store image /video--> cloudinary , aws
+
+go to package.json --> set "type" : "module"
+
+install nodemon --> for control start and stop server
+def depdendencies  -> it is depdendencieswhich is used in development not in production
+
+You can also install nodemon as a development dependency:
+npm install --save-dev nodemon 
+ # or using yarn: yarn add nodemon -D
+ easy way to install
+ npm i -D nodemon
+
+
+ then go to package.json
+ "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+
+
+  to resolve issues of environent variable and module
+  require('dotenv').config()
