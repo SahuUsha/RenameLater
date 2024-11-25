@@ -62,3 +62,16 @@ dev-depdendencies : npm i -D prettier
 we need to add two-three which is necessary:
 1. prettier
 2. prettierignore
+
+npm documentation
+ require donevn
+ express
+
+
+ install mongoose ,express, dotenv
+ npm install express dotenv
+
+ keep config in package.json 
+   "scripts": {
+    "dev": "nodemon -r dotenv/config--experimental-json-modules src/index.js"
+  },
