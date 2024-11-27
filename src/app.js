@@ -21,7 +21,18 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 
 app.use(express.static("public"))
 // it is use for keep file,image to me any any can access it 
-
 app.use(cookieParser())
 
-export { app }
+// routes import
+import userRouter from './routes/user.router.js' 
+
+// routes declaration
+// app.use("/users", userRouter)  // when any oner reach to /user then controll wil =l go to userRouter file
+
+app.use("/api/v1/users", userRouter)  // if we are defining Api we need to tell version of apu so we use it -> standar practice
+
+// url will create in this way
+// https://localhost:8000/users
+// https://localhost:8000/api/v1/users/register
+
+export default app;
