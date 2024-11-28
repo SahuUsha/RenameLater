@@ -23,7 +23,6 @@ const userSchema = new Schema(
       fullname:{
         type: String,
         required : true,
-       
         trim : true,
         index : true
        
@@ -42,7 +41,7 @@ const userSchema = new Schema(
       },
       password:{
            types : String,
-           required: [true," Password is required"]
+          //  required: [true," Password is required"]
       },
       refreshTocken:{
         type : String,
@@ -59,7 +58,7 @@ userSchema.pre("save",async function(next){
   // here this know every field of user
   if(this.isModified("password")) 
     {   // here we check if password modified change password
-  this.password = bcrypt.hash(this.password,10)
+  this.password =await bcrypt.hash(this.password,10)
   next()
     }
 })
