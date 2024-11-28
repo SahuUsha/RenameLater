@@ -20,9 +20,10 @@ const registerUser = asyncHandler(async(req,res)=>{
 
 
     // we will get response  from body or url or json or uri
-    const {fullName , email , username,password} = req.body
-    console.log("email: ",email)
-    console.log("password: ",password)
+    const {fullname , email , username,password} = req.body
+    // console.log("email: ",email)
+    // console.log("password: ",password)
+    console.log(req.body)
 
     // check from postmax
     
@@ -32,7 +33,7 @@ const registerUser = asyncHandler(async(req,res)=>{
     // }
 
     if(
-        [fullName,email,username,password].some((field)=> field.trim()==="")
+        [fullname,email,username,password].some((field)=> field.trim()==="")
 
     ){
         throw new ApiError(400, "All field are required")
@@ -45,49 +46,57 @@ const registerUser = asyncHandler(async(req,res)=>{
     }
 
 // check user already  exist or not
-  const existedUser =  User.findOne({
+  const existedUser =await  User.findOne({
 
     $or : [{username},{email}]
    })
-   console.log(existedUser);
+//    console.log(existedUser);
    if(existedUser){
     throw new ApiError(409 ,"User with email or username already exist")
    }
 
 
-  const avatarLocalPath =  req.files?.avatar[0]?.path
+  const avatarLocalPath =  req.files?.avatar?.[0]?.path
    //we will take file from multer her it add many thing to body
-   console.log(req.files)
-   console.log(req.files.avatar)
-   console.log(avatarLocalPath);
+//    console.log(req.files)
+//    console.log(req.files.avatar)
+//    console.log(avatarLocalPath);
 
-   const coverImageLocalPath = req.files?.coverImage[0]?.path
-   console.log(coverImageLocalPath)
+   const coverImageLocalPath = req.files?.coverImage?.[0]?.path
+//    console.log(coverImageLocalPath)
+   
+   //    for checking coverimage is present or not
+//    if(req.files && req.Array.isArray(req.files.coverImage) && req.files.coverImage>0){
+//     const coverImageLocalPath = req.files?.coverImage?.[0]?.path
+//    }
+
+//  but i have used other method 
+   
 
    if(!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
    }
 
  const avatar= await uploadOnClodinary(avatarLocalPath)
- console.log(avatar)
- const coverImage= await uploadOnClodinary(coverImageLocalPath)
+//  console.log(avatar)
+ const coverImage= coverImageLocalPath ? await uploadOnClodinary(coverImageLocalPath) : null
 
  if(!avatar){
-    throw new ApiError(400,"avatar file is required")
+    throw new ApiError(400,"Failed to upload avatar file")
  }
 
 const user= await User.create({
-    fullName ,
+    fullname ,
     avatar: avatar.url,
-    coverImage: coverImage?.url|| "",
+    coverImage: coverImage?.url || "",
     email,
     password,
-    username : username.lowercase()
+    username : username
 
  })
 
  // check User create successfull
-const createdUser =  User.findById(user._id).select(
+const createdUser = await User.findById(user._id).select(
     "-password -refreshTocken " // here we write what do attribut we don't want
 )
 
@@ -98,10 +107,11 @@ if(!createdUser){
 return res.status(201).json(
     new ApiResponse(200,createdUser,"User registered successfully")
 )
-console.log(createdUser);
+// console.log(createdUser);
 
 })
 
 
+// console.log(registerUser)
 
 export default registerUser;
