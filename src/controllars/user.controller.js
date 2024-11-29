@@ -6,6 +6,21 @@ import ApiResponse from "../utils/ApiResponse.js"
 
 
 
+const generateAccessandRefreshTokens=async (userId)=>{
+         try{
+         const user = await User.findById(userId)
+        const accesstoken= user.generateAccessTokenn()
+         const refreshtoken = user.generateRefreshTokenn()
+
+         user.refreshTocken = refreshtoken
+        await user.save({validateBeforeSave : false}); // don't apply any validation like password is required and so on
+
+        return {refreshtocken,accesstoken}
+         }catch(err){
+            throw new ApiError(500,"Some thing went wrong while generating access and refresh token")
+         }
+}
+
 
 const registerUser = asyncHandler(async(req,res)=>{
     // get user details from fronted
@@ -114,4 +129,85 @@ return res.status(201).json(
 
 // console.log(registerUser)
 
-export default registerUser;
+
+//************* Login************************** 
+ 
+const loginUser=asyncHandler(async(req,res)=>{
+    // req body-->dats
+    // username or email--> take from data base
+    // find the user
+    // password check--> if not password wrong
+    // generate refresh token and acces token
+    // send refresh token in cookies
+    // send response
+    
+    const {email ,username,password} = req.body 
+
+    if(!username || !email  ){
+       throw new ApiError(400 , "username and email is required")
+    }
+   
+    if(!password){
+        throw new ApiError(400 , "password is required")
+    }
+
+    const user = await User.findOne({
+
+       $or : [{email},{username}]  // find on basis of either username or email
+
+    })
+
+    if(!user){
+        throw new ApiError(404,"User does not exist");
+    }
+   
+   const isPasswordValid =  await user.isPasswordCorrect(password)
+
+   if(!isPasswordValid){
+    throw new ApiError(401,"Invalid user credential");
+   }
+  
+   // create method for genrate access token and refresh tocken above
+
+   const {refreshTocken, accessToken  } = await generateAccessandRefreshTokens(user._id)
+    
+
+ // at this point check that we have to update user or query the user from database if query is not expansive
+
+  const loggedInUser =  await User.findById(user._id).select("-password -refreshToken");
+
+  //
+  const options = {  // here we are designing option to send  cookies
+    httpOnly : true,
+    secur : true
+
+    // if we keep both true then we can  modified it by server only we can modified it through frontend
+  }
+
+  return res
+  .status(200)
+  .cookie("accessToken", accessToken  ,options)
+  .cookie("refreshToken" , refreshTocken,options)
+  .json
+  (
+    new ApiResponse(
+        200,
+        {
+            user: loggedInUser, accessToken, refreshTocken  // here we are sending token if user want to save it in local
+
+
+    },
+    "User logged in successfully"
+)
+)
+
+})
+
+const logout = asyncHandler(async(req,res)=>{
+    // find user
+})
+
+export {
+    registerUser,
+    loginUser
+}
