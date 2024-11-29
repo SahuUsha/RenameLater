@@ -12,10 +12,10 @@ const generateAccessandRefreshTokens=async (userId)=>{
         const accesstoken= user.generateAccessTokenn()
          const refreshtoken = user.generateRefreshTokenn()
 
-         user.refreshTocken = refreshtoken
+         user.refreshToken = refreshtoken
         await user.save({validateBeforeSave : false}); // don't apply any validation like password is required and so on
 
-        return {refreshtocken,accesstoken}
+        return {refreshtoken ,accesstoken}
          }catch(err){
             throw new ApiError(500,"Some thing went wrong while generating access and refresh token")
          }
@@ -169,7 +169,7 @@ const loginUser=asyncHandler(async(req,res)=>{
   
    // create method for genrate access token and refresh tocken above
 
-   const {refreshTocken, accessToken  } = await generateAccessandRefreshTokens(user._id)
+   const {refreshToken, accessToken  } = await generateAccessandRefreshTokens(user._id)
     
 
  // at this point check that we have to update user or query the user from database if query is not expansive
@@ -187,13 +187,13 @@ const loginUser=asyncHandler(async(req,res)=>{
   return res
   .status(200)
   .cookie("accessToken", accessToken  ,options)
-  .cookie("refreshToken" , refreshTocken,options)
+  .cookie("refreshToken" , refreshToken,options)
   .json
   (
     new ApiResponse(
         200,
         {
-            user: loggedInUser, accessToken, refreshTocken  // here we are sending token if user want to save it in local
+            user: loggedInUser, accessToken, refreshToken  // here we are sending token if user want to save it in local
 
 
     },
@@ -203,11 +203,39 @@ const loginUser=asyncHandler(async(req,res)=>{
 
 })
 
-const logout = asyncHandler(async(req,res)=>{
-    // find user
+const logoutUser = asyncHandler(async(req,res)=>{
+    // we have get access of user through middleware
+
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                refreshToken : undefined
+            }
+        },
+        {
+            new : true // we can set new attribute
+        }
+    )
+
+    const options={
+        httpOnly : true,
+        secur : true
+    }
+
+    return res
+    .status(200)
+    .clearCookie("accessToken " , options)
+    .clearCookie("refreshToken " , options)
+    .json(
+        new ApiResponse(200,{},"user logged out")
+)
+
+   
 })
 
 export {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 }
