@@ -4,8 +4,8 @@ import fs from "fs"
 cloudinary.config({ 
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
     // it is secrete data don'nt need to show 
-
-    api_key: process.env.Cloudinary_ApiKey, 
+    api_key : 	639392966878455,
+    // api_key: process.env.Cloudinary_ApiKey, 
     api_secret: process.env.CLODINARY_API_SECRET // Click 'View API Keys' above to copy your API secret
 });
 

@@ -13,7 +13,7 @@ app.use(cors({
 }))
 
 
-app.use(express.json({limit : "16kb"}))  // it is accepting data when it is taken from form
+app.use(express.json({limit : "20kb"}))  // it is accepting data when it is taken from form
 
 // for data com from express'
 app.use(express.urlencoded({extended: true, limit: "16kb"}))  

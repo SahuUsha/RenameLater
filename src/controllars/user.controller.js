@@ -35,7 +35,7 @@ const registerUser = asyncHandler(async(req,res)=>{
 
 
     // we will get response  from body or url or json or uri
-    const {fullname , email , username,password} = req.body
+    const {fullname , email , username,password} = req.body // taking from frontend
     // console.log("email: ",email)
     // console.log("password: ",password)
     console.log(req.body)
@@ -48,17 +48,17 @@ const registerUser = asyncHandler(async(req,res)=>{
     // }
 
     if(
-        [fullname,email,username,password].some((field)=> field.trim()==="")
+        [fullname,email,username,password].some((field)=> field?.trim()==="")
 
     ){
         throw new ApiError(400, "All field are required")
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if(!emailRegex.test(email)){
-        throw new ApiError(400, "Invalid email format");
-    }
+    // if(!emailRegex.test(email)){
+    //     throw new ApiError(400, "Invalid email format");
+    // }
 
 // check user already  exist or not
   const existedUser =await  User.findOne({
@@ -133,7 +133,7 @@ return res.status(201).json(
 //************* Login************************** 
  
 const loginUser=asyncHandler(async(req,res)=>{
-    // req body-->dats
+    // req body-->data
     // username or email--> take from data base
     // find the user
     // password check--> if not password wrong
@@ -142,14 +142,23 @@ const loginUser=asyncHandler(async(req,res)=>{
     // send response
     
     const {email ,username,password} = req.body 
+   console.log(req.body)
+   console.log(req.files)
 
-    if(!username || !email  ){
-       throw new ApiError(400 , "username and email is required")
-    }
-   
+    console.log(email)
+    console.log(username)
+    console.log(password)
+
     if(!password){
         throw new ApiError(400 , "password is required")
     }
+    // if(!username || !email  ){
+    //    throw new ApiError(400 , "username or email is required")
+    // }
+    if(!username && !email  ){
+       throw new ApiError(400 , "username and email is required")
+    }
+   
 
     const user = await User.findOne({
 
@@ -179,8 +188,7 @@ const loginUser=asyncHandler(async(req,res)=>{
   //
   const options = {  // here we are designing option to send  cookies
     httpOnly : true,
-    secur : true
-
+    secure : true
     // if we keep both true then we can  modified it by server only we can modified it through frontend
   }
 
@@ -209,8 +217,8 @@ const logoutUser = asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken : undefined
+            $unset: {
+                refreshToken : 1
             }
         },
         {
@@ -220,7 +228,7 @@ const logoutUser = asyncHandler(async(req,res)=>{
 
     const options={
         httpOnly : true,
-        secur : true
+        secure : true
     }
 
     return res
