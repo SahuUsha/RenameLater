@@ -260,7 +260,7 @@ const logoutUser = asyncHandler(async(req,res)=>{
 
 // ****refresh AccessToken***********
 
-const refreshaccessToken= asyncHandler(async (req,res))=>{
+const refreshaccessToken= asyncHandler(async(req,res)=>{
    // we can accecc refreshToken from cookies
  try {
      const inocomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
@@ -292,13 +292,25 @@ const refreshaccessToken= asyncHandler(async (req,res))=>{
      .cookie("accessToken",accessToken,options)
      .cookie("refreshToken",newRefreshToken,options
      .json(
-       new ApiResponse(200 ,{accessToken,refreshToken: newRefreshToken }. " refresh  accessToken")
+       new ApiResponse(200 ,{accessToken,refreshToken: newRefreshToken }, " refresh  accessToken")
      )
      )
  } catch (error) {
     throw new ApiError(401 ,error?.message || "Invalid refresh token")
  }
-}
+})
+
+
+const changeCurrentPassword = asyncHandler(async(req,res)=>{
+  // we can take confirfPassword
+  const {oldPassword,newPassword} = req.body
+
+  const user = await User.findById(req.user?._id)
+
+
+
+
+})
 
 export {
     registerUser,
