@@ -304,11 +304,128 @@ const refreshaccessToken= asyncHandler(async(req,res)=>{
 const changeCurrentPassword = asyncHandler(async(req,res)=>{
   // we can take confirfPassword
   const {oldPassword,newPassword} = req.body
+  // const {oldPassword,newPassword,confirmPassword} = req.body
+
+  // if(newPassword!=confirmPassword){
+  //   throw new ApiError(400 , "newpassword and confirmpassword is not same")
+  // }
 
   const user = await User.findById(req.user?._id)
 
+  const isPasswordCorrect=  await  user.isPasswordCorrect(oldPassword)
+
+  if(!isPasswordCorrect){
+    throw new ApiError(400,"Invalid Password")
+  }
+
+  user.password = newPassword
+  await user.save({validateBeforeSave : false})
 
 
+return res
+.status(200)
+.json(
+  new ApiResponse(200,{},"Password change successfully")
+)
+
+})
+
+const getCurrentUser = asyncHandler(async(req,res)=>{
+  return res
+  .status(200)
+  .json(200,
+    req.user,
+    "current user fetched successfully"
+  )
+})
+
+
+const updateAccountDetail=asyncHandler(async (req,res)=>{
+  const{fullname, email} = req.body
+
+  if(!fullname || !email){
+    throw new ApiError(400 , "All field is required")
+  }
+
+  
+const updatedUser =   await User.findByIdAndUpdate(req.user?._id,
+  {
+     $set:{
+      fullname,
+      email : email
+
+     }
+  },{
+    new : true  // new updated info return
+  }
+).select("-password")
+  // for files create separate controller
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200, updatedUser, "Account is updated successfully"))
+})
+
+
+// to update file we will use two middleware--> multer, auth
+const updateUserAvatar = asyncHandler(async(req,res)=>{
+ const {avatarLocalPath}= req.file?.path
+
+ if(!avatarLocalPath){
+  throw new ApiError(400,"Avatar file is missing")
+ }
+
+const avatar = await uploadOnClodinary(avatarLocalPath)
+
+if(!avatar.url){
+  throw new ApiError(400,"new avatar is failed to upload");
+}
+
+const user = await User.finfindByIdAndUpdate(req.user?._id,
+  {
+    $set:{
+      avatar : avatar.url
+    }
+  },
+  {
+    new : true
+  }
+).select("-password")
+
+return res
+    .status(200)
+    .json(
+      new ApiResponse(200,user,"Avatar is updated successfully")
+    )
+
+})
+
+const updateUserCoverImage = asyncHandler(async(req,res)=>{
+  const {coverImageLocalPath} = req.file?.path
+
+  // coverImage is not compulsory
+  if(coverImageLocalPath){
+    // throw new ApiError(400 ,"coverImage is missing")
+    const coverImage = await uploadOnClodinary(coverImageLocalPath)
+  }
+
+ const user=  await User.finfindByIdAndUpdate(req.user?._id,
+    {
+      $set:{
+        coverImage: coverImage?.url || ""
+      }
+    },
+    {
+      new: true
+    }
+  ).select("-password")
+
+
+ return res
+      .status(200)
+      .json(
+        new ApiResponse(200,user,"coverImage is updated" )
+      )
 
 })
 
@@ -316,5 +433,11 @@ export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshaccessToken
+    refreshaccessToken,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetail,
+    updateUserAvatar,
+    updateUserCoverImage
+
 }
