@@ -1,7 +1,7 @@
 import {asyncHandler} from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import {User} from "../models/user.model.js";
-import {uploadOnClodinary} from "../utils/cloudinary.js";
+import {uploadOnClodinary,deleteFromCloudinary,getPublishIdfromCloudinary} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import ApiResponse from "../utils/ApiResponse.js";
 
@@ -375,13 +375,15 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
   throw new ApiError(400,"Avatar file is missing")
  }
 
+await deleteOldImage(req.user._id , avatarLocalPath)
+
 const avatar = await uploadOnClodinary(avatarLocalPath)
 
 if(!avatar.url){
   throw new ApiError(400,"new avatar is failed to upload");
 }
 
-const user = await User.finfindByIdAndUpdate(req.user?._id,
+const user = await User.findByIdAndUpdate(req.user?._id,
   {
     $set:{
       avatar : avatar.url
@@ -403,13 +405,15 @@ return res
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
   const {coverImageLocalPath} = req.file?.path
 
+  const coverImage ="";
   // coverImage is not compulsory
   if(coverImageLocalPath){
     // throw new ApiError(400 ,"coverImage is missing")
-    const coverImage = await uploadOnClodinary(coverImageLocalPath)
+    await deleteOldImage(req.user._id ,coverImageLocalPath)
+    coverImage = await uploadOnClodinary(coverImageLocalPath)
   }
 
- const user=  await User.finfindByIdAndUpdate(req.user?._id,
+ const user=  await User.findByIdAndUpdate(req.user?._id,
     {
       $set:{
         coverImage: coverImage?.url || ""
@@ -428,6 +432,113 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
       )
 
 })
+
+const deleteOldImage =async(userId, coverImageLocalPath)=>{
+  if(!userId){
+    throw new ApiError(404,"User does not exist")
+  }
+  try {
+    const user = await User.findById(userId)
+
+    if(!user){
+      throw new ApiError(400 ,"User not found to delete image")
+    }
+
+    if(coverImageLocalPath){
+
+      if(user.coverImage){
+        const imageurl = await getPublishIdfromCloudinary(user.coverImage)
+        if(imageurl){
+          await deleteFromCloudinary(imageurl)
+        }
+      }
+    }
+  } catch (error) {
+    
+  }
+}
+ 
+const getUserChannelProfile= asyncHandler(async(req,res)=>{
+  // now we will take user from params--> from url
+
+  const {username} = req.params 
+
+  if(!username?.trim()){
+    throw new ApiError(400,"Username is missing")
+  }
+
+  // we are using aggregation directly 
+  const channel = await User.aggregate([ // it return array
+    // create aggregation pipline
+
+    {
+         $match : {
+          username : username?.toLowerCase()
+         }
+    },
+    {
+      $lookup:{
+        from : "subscriptions", // in database it become pural
+        localField : "_id",
+        foreignField:"channel",
+        as:"subscribers"
+      }
+    },
+    {
+      $lookup:{
+        from : "subscriptions", // in database it become pural
+        localField : "_id",
+        foreignField:"subscriber",
+        as:"subscribedTo" // maine kisko subscipe kar rakha hai
+      }
+    },
+    {
+      $addFields : {
+        subscribersCount : {
+          $size : "$subscribers"
+        },
+        channelSubscribedToCount : {
+          $size : "$subscribedTo"
+        }
+        // now check user subscibe this channel or not 
+        isSubscribed :{
+          $cond :{
+            if : {$in:[req,user?._id , "$subscribers.subscriber"]},
+            then:true,
+            else : false // sent to frontend if true : subscribeed and if false : not subscribed channel
+          }
+        }
+      }
+    }, 
+    {
+        $project : { // it will not return everthing ,it will give only selected thing
+         fullname : 1,
+         username : 1,
+         subscribersCount: 1,
+         channelSubscribedToCount : 1,
+         avatar : 1,
+         coverImage: 1,
+         email : 1,
+      }
+    }
+    
+  ])
+
+  if(!channel?.length){
+    throw new ApiError(400 ,"channel  does not exist")
+  }
+  
+  console.log(channel)
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200,channel[0],"channel fetched successfully");
+  )
+})
+
+
+
 
 export {
     registerUser,
