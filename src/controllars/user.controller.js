@@ -499,7 +499,7 @@ const getUserChannelProfile= asyncHandler(async(req,res)=>{
         },
         channelSubscribedToCount : {
           $size : "$subscribedTo"
-        }
+        },
         // now check user subscibe this channel or not 
         isSubscribed :{
           $cond :{
@@ -521,7 +521,6 @@ const getUserChannelProfile= asyncHandler(async(req,res)=>{
          email : 1,
       }
     }
-    
   ])
 
   if(!channel?.length){
@@ -533,12 +532,69 @@ const getUserChannelProfile= asyncHandler(async(req,res)=>{
   return res
   .status(200)
   .json(
-    new ApiResponse(200,channel[0],"channel fetched successfully");
+    new ApiResponse(200,channel[0],"channel fetched successfully")
   )
+}
+)
+
+
+const getWatchHistory = asyncHandler(async(req,res)=>{
+    const user = await User.aggregate([
+      {
+        $match : {
+          _id: new mongoose.Types.ObjectId(req.user._id) // covert to id from mongodb id string
+        }
+      },
+      {
+          $lookup : {
+            from : "videos",
+            localField : "watchHistory",
+            foreignField : "_id",
+            as : "watchHistory",
+            pipeline :[
+              {
+              $lookup : {
+                from : "users",
+                localField : "owner",
+                foreignField : "_id",
+                as: "owner",
+                pipeline : [
+                  {
+                    $project :{
+                      fullname : 1,
+                      username:1,
+                      avatar : 1
+
+                    }
+                  }
+                ]
+
+              }
+            },
+            {
+              // it only for frontend to send data 
+              $addFields:{
+                owner : {
+                  $first :"$owner"
+                }
+              }
+            }
+            ]
+
+          }
+      },
+    ])
+ return res
+ .status(200)
+ .json(
+  new ApiResponse(
+    200,
+    user[0].watchHistory ,
+    "watch history is fetched successfully"
+  )
+ )
+    
 })
-
-
-
 
 export {
     registerUser,
@@ -549,6 +605,8 @@ export {
     getCurrentUser,
     updateAccountDetail,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+    getWatchHistory,
+    getUserChannelProfile
 
 }
