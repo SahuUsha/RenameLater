@@ -4,6 +4,7 @@ import {User} from "../models/user.model.js";
 import {uploadOnClodinary,deleteFromCloudinary,getPublishIdfromCloudinary} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import ApiResponse from "../utils/ApiResponse.js";
+import mongoose from "mongoose";
 
 
 
@@ -21,9 +22,9 @@ const generateAccessandRefreshTokens = async (userId) => {
       const refreshToken = user.generateRefreshToken();
   
       // Log tokens (for debugging)
-      console.log("Access token:", accessToken);
-      console.log("Refresh token:", refreshToken);
-      console.log("User:", user);
+      // console.log("Access token:", accessToken);
+      // console.log("Refresh token:", refreshToken);
+      // console.log("User:", user);
   
       // Store refresh token in the user document
       user.refreshToken = refreshToken;
@@ -59,7 +60,7 @@ const registerUser = asyncHandler(async(req,res)=>{
     const {fullname , email , username,password} = req.body // taking from frontend
     // console.log("email: ",email)
     // console.log("password: ",password)
-    console.log(req.body)
+    // console.log(req.body)
 
     // check from postmax
     
@@ -75,11 +76,11 @@ const registerUser = asyncHandler(async(req,res)=>{
         throw new ApiError(400, "All field are required")
     }
 
-    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // if(!emailRegex.test(email)){
-    //     throw new ApiError(400, "Invalid email format");
-    // }
+    if(!emailRegex.test(email)){
+        throw new ApiError(400, "Invalid email format");
+    }
 
 // check user already  exist or not
   const existedUser =await  User.findOne({
@@ -369,11 +370,14 @@ const updatedUser =   await User.findByIdAndUpdate(req.user?._id,
 
 // to update file we will use two middleware--> multer, auth
 const updateUserAvatar = asyncHandler(async(req,res)=>{
- const {avatarLocalPath}= req.file?.path
+  console.log(req.file)
+ const avatarLocalPath=  req.file?.path;
+ console.log(avatarLocalPath)
 
  if(!avatarLocalPath){
   throw new ApiError(400,"Avatar file is missing")
  }
+
 
 await deleteOldImage(req.user._id , avatarLocalPath)
 
@@ -400,12 +404,13 @@ return res
       new ApiResponse(200,user,"Avatar is updated successfully")
     )
 
-})
+}
+)
 
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
-  const {coverImageLocalPath} = req.file?.path
+  const coverImageLocalPath = req.file?.path
 
-  const coverImage ="";
+  let coverImage ="";
   // coverImage is not compulsory
   if(coverImageLocalPath){
     // throw new ApiError(400 ,"coverImage is missing")
@@ -463,9 +468,11 @@ const getUserChannelProfile= asyncHandler(async(req,res)=>{
 
   const {username} = req.params 
 
+
   if(!username?.trim()){
     throw new ApiError(400,"Username is missing")
   }
+
 
   // we are using aggregation directly 
   const channel = await User.aggregate([ // it return array
@@ -503,7 +510,7 @@ const getUserChannelProfile= asyncHandler(async(req,res)=>{
         // now check user subscibe this channel or not 
         isSubscribed :{
           $cond :{
-            if : {$in:[req,user?._id , "$subscribers.subscriber"]},
+            if : {$in:[req.user?._id|| null , "$subscribers.subscriber"]},
             then:true,
             else : false // sent to frontend if true : subscribeed and if false : not subscribed channel
           }
@@ -522,6 +529,8 @@ const getUserChannelProfile= asyncHandler(async(req,res)=>{
       }
     }
   ])
+
+  console.log(channel)
 
   if(!channel?.length){
     throw new ApiError(400 ,"channel  does not exist")

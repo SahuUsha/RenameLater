@@ -25,6 +25,7 @@ app.use(cookieParser())
 
 // routes import
 import userRouter from './routes/user.router.js' 
+import videoRouter from './routes/video.router.js'
 
 // routes declaration
 // app.use("/users", userRouter)  // when any oner reach to /user then controll wil =l go to userRouter file
@@ -34,5 +35,7 @@ app.use("/api/v1/users", userRouter)  // if we are defining Api we need to tell 
 // url will create in this way
 // https://localhost:8000/users
 // https://localhost:8000/api/v1/users/register
+app.use("/api/v1/videos",videoRouter)
+
 
 export default app;
