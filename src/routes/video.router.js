@@ -5,12 +5,17 @@ import {upload} from "../middleware/multer.middleware.js"
 
 import {publishVideo, 
     getAllVideos,
-    getVideoById
+    getVideoById,
+    updatedVideo,
+    deleteVideo
 } from "../controllars/video.controller.js"
 const router = Router();
 router.use(verifyJWT) ; // apply for all routes
 
-router.route("/").post(
+router.route("/").get(getAllVideos).post(
+    // [
+    //     body('title').
+    // ],
     upload.fields([
         {
             name: "videoFile",
@@ -24,11 +29,7 @@ router.route("/").post(
     publishVideo
 );
 
-router.route("/:videoId").get(getVideoById)
-
-
-
-
+router.route("/:videoId").get(getVideoById).patch(updatedVideo).delete(deleteVideo)
 
 
 export default router

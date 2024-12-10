@@ -459,6 +459,7 @@ const deleteOldImage =async(userId, coverImageLocalPath)=>{
       }
     }
   } catch (error) {
+    console.log(error)
     
   }
 }
