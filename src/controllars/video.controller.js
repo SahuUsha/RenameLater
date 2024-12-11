@@ -297,6 +297,19 @@ const deleteforUpdatingVideo = async (videoId , thumbnailLocalPath)=>{
     }
 }
 
+// const updatetThumbnail = asyncHandler(async(req,res)=>{
+//    const thumbnailLocalPath = req.file?.path
+
+//    if(!thumbnailLocalPath){
+//     throw new ApiError(404 ,"thumbnailLocalPath is not found")
+//    }
+
+
+
+
+
+// })
+
 
 const deleteVideo = asyncHandler(async(req,res)=>{
 

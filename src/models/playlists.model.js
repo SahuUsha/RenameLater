@@ -3,22 +3,23 @@ import mongoose,{Schema} from "mongoose";
 const playlistSchema = new Schema(
     {
      name : {
-        types: String,
+        type: String,
         required : true,
         unique: true
      },
-     descirption : {
-        types : String,
+     description : {
+        type : String,
         required : true,
      },
      videos:[{
-        types: mongoose.Types.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: "Video"
      }],
      owner : {
-        types : mongoose.Types.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref : "User",
-        required : true,
+        required: true
+   
      }
 
     },
