@@ -27,6 +27,7 @@ app.use(cookieParser())
 import userRouter from './routes/user.router.js' 
 import videoRouter from './routes/video.router.js'
 import playlistRouter from './routes/playlist.router.js'
+import commentRouter from './routes/comments.router.js'
 
 
 // routes declaration
@@ -41,6 +42,7 @@ app.use("/api/v1/users", userRouter)  // if we are defining Api we need to tell 
 // https://localhost:8000/api/v1/users/register
 app.use("/api/v1/videos",videoRouter)
 app.use("/api/v1/playlists",playlistRouter)
+app.use("/api/v1/comments" , commentRouter)
 
 
 export default app;
