@@ -3,10 +3,13 @@ import mongoose ,{Schema} from "mongoose";
 const tweetSchema = new Schema(
     {
        owner  : {
-        types : mongoose.Types.ObjectId,
+        type : mongoose.Types.ObjectId,
         ref : "User"
        },
-     
+       content:{
+        type : String,
+        required: true
+       }
     },
     {
 timestamps : true
