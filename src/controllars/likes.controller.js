@@ -92,6 +92,7 @@ const toggleTweetLike = asyncHandler(async(req,res)=>{
         likedBy : userId
     });
 
+
     if(existingLike){
         await Like.findByIdAndDelete(existingLike?._id)
     }
@@ -128,7 +129,9 @@ const getLikesVideos = asyncHandler(async(req,res)=>{
     const allLikeVideo = await Like.aggregate([
         {
             $match:{
-                likedBy : new mongoose.Types.ObjectId(userId)
+                likedBy : new mongoose.Types.ObjectId(req.user._id),
+                tweet : {$exists: false},  
+                comment : {$exists : false}
             }
         },
         {
@@ -137,16 +140,16 @@ const getLikesVideos = asyncHandler(async(req,res)=>{
                 localField: "video",
                 foreignField: "_id",
                 as: "LikeVideos",
-            //     pipeline :[
-            //         {
-            //             $project: {
-            //                 videoFile : 1,
-            //                 thumbnail : 1,
-            //                 title : 1,
-            //                 description : 1,
-            //             }
-            //         }
-            //     ]
+                // pipeline :[
+                //     {
+                //         $project: {
+                //             videoFile : 1,
+                //             thumbnail : 1,
+                //             title : 1,
+                //             description : 1,
+                //         }
+                //     }
+                // ]
             }
         },
         {
@@ -160,7 +163,7 @@ const getLikesVideos = asyncHandler(async(req,res)=>{
     console.log(allLikeVideo)
  
     if(!allLikeVideo) {
-        throw new ApiError(504, "Couldn't find likes video")
+        throw new ApiError(404, "No likes video found")
     }
 
    return res
