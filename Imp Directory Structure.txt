@@ -7,6 +7,15 @@ directory struture
 Utils
 more(depends)
 
+document require{
+  1.express
+
+  2.npm-->nodemon,dotevn,environent,cookies-priere,cors 
+  3.nods api error
+  4.mongoose
+  5.prettier
+}
+
 
 install express:
 npm install express
@@ -75,3 +84,161 @@ npm documentation
    "scripts": {
     "dev": "nodemon -r dotenv/config--experimental-json-modules src/index.js"
   },
+
+
+  //  creating app through express
+
+  when db is connected through async it return promise we need to take it
+  in express we use .then for sucess response and .catch for any error use
+
+
+  install cookie-parsar for accepting cookies  
+  from npm documentation and read install
+
+and also install cors --> help for setting for cross origin resource sharing
+middleware mostly use and for configuration with app.use()
+
+
+creating new utility filw for wrap the database connect code to prevent from writing repeatedly where we have need
+create ne file in utils
+
+
+to standardize error and response that is it should me in dame from
+search-->nodejs api error
+create ApiError.js
+for apiresponse not need but okay
+create ApiResponse.js file
+
+
+we will special pacakage while creating video modele
+go to npm
+search--> mongoose-aggregate-paginate-v2--> allow for writing aggregation query
+ture power of mongodb
+complex query
+you can also read middleware
+we can add own pluggin
+
+we learn about some package
+
+1.bcrypt-->package made of core nodejs
+1.bcryptjs-->optimize with javascript with no dependency
+both abouve pakage help to hash the password
+
+2.JWT-json web token
+
+npm i bcrypt jsonwebtoken
+
+we cannot becrypt directly we need to use mongoose middleware hook
+1.pre hook --> to do something before any work
+for work read-->types of middleware-->mongoose documnet
+
+jwt is bearer token->ye token jiske bhi pass hai mai use data bhej dunga
+
+we will write jwt in .env because it is screte term
+for reading go to npm-jsonwebtoken->github gor read libraries
+
+for taking file and photo ,video ,we will we third package serivices
+here we will use cloudinary 
+we will also use some package --> multer, express-fileupload -- read documentation
+here we will use multer
+
+install cloudinary
+npm i cloudinary
+npm i multer
+
+create new file for it in utility or we can also keep it in serivices
+set its configuration --> read documenttation
+keep it in .env
+bacause it is reusable
+strategy-->take file from server --> local storage --> cloudinary-->remove from server
+
+import file system it already present in nodejs
+import fs from "fs"
+
+now we will create middleware 
+create file in middleware folder
+using multer 
+copy from github
+
+now we are doing work on routing create:
+controller for user
+create userRouter in routes
+then write routes in app.js send controller to useRouter
+
+// now we will go for testing so we will go to
+
+1. thunder client
+it is plugin of viscode
+
+otherwise
+2.Postman
+
+now we will write code/logic for registration for user
+
+now will handle file so we will go to multer for handling file
+import upload
+
+now we will perform Validation
+we have take images through multer and take path of their path
+
+ now we have created user
+ and send response
+
+we have to check on postman using formdata
+
+now after uploading image on cludinary we have to delete it from our local-> unlink file
+
+now we work on token
+AccessToken is valid for short term and give access to any website/webpage
+but refreshtoken is  valid for long time and it store in database to match the user login with the help of endpoint
+
+and before it we creat login 
+create function as loginUser in userRegister
+/ create method for genrate access token and refresh tocken
+
+// now we send cookies
+
+we will create logout method 
+1. now we will design own middleware
+
+write routes for both login and logout
+in logout add middleware
+
+if we are not getting any reqponse we can use _
+functionname(req,_,next)
+
+discuss on accessToken and refreshToken 
+accesstoken t expair after some time we have need to five acces to user  again
+i wiil send refreshToken on same request if it will match with refreshToken present in database then generate new accessToken 
+we have need to give end point to hit api
+
+create end point for user in user controller
+create new route for newAccesstoken
+
+// we can write article on refreshToken and accessToken -->hashNode
+
+ we are creating subscription model for subscriber
+
+crreate changePassword method in user controller file
+create updateAccountDetail in same
+create file updated function
+
+create function to delete from cloudinary
+write function to get publishid from urls
+
+join the information from subscription to user
+create aggregation pipeline in mongodb
+go to mongodb-->db--> collection--> aggregation
+
+$match->to find same username
+$lookup-->to join two document
+
+aggregation
+create getUserChannelProfile in user controller
+
+aggregation
+create getWatchHistory  in user controller
+\
+***** Invterview question *********
+req.user._id here we are geeting string from mongodb it does not give id 
+moongose covert it internally id

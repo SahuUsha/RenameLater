@@ -30,7 +30,9 @@ import playlistRouter from './routes/playlist.router.js'
 import commentRouter from './routes/comments.router.js'
 import tweetRouter from './routes/tweets.router.js'
 import likeRouter from './routes/like.router.js'
-
+import healthcheckRouter from './routes/healthcheck.router.js'
+import dashboardRouter from './routes/dashboard.router.js'
+import subscrberRouter from './routes/subscription.router.js'
 
 // routes declaration
 // app.use("/users", userRouter)  // when any oner reach to /user then controll wil =l go to userRouter file
@@ -47,6 +49,9 @@ app.use("/api/v1/playlists",playlistRouter)
 app.use("/api/v1/comments" , commentRouter)
 app.use("/api/v1/tweets",tweetRouter)
 app.use("/api/v1/likes",likeRouter)
+app.use("/api/v1/healthcheck",healthcheckRouter)
+app.use("/api/v1/dashboard", dashboardRouter )
+app.use("/api/v1/subscribe",subscrberRouter)
 
 
 export default app;

@@ -4,16 +4,14 @@ const subscriptionSchema = new Schema(
     {
         subscriber : {
             type : Schema.Types.ObjectId, // one who is subscribing
-            ref : "User"
+            ref : "User",
+            required: true
         },
         channel:{
             type : Schema.Types.ObjectId,
-            ref : "Channel"
+            ref : "User",
+            required: true
         }
-
-
-
-
  },
 {timestamps : true})
 

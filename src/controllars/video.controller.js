@@ -24,10 +24,8 @@ const getAllVideos = asyncHandler(async(req,res)=>{
         {
             $match :{
                 isPublished : true,
-
                 // ...(query &&{ title : {$regex : query , $option : "i"}} ),
-                // ...(userId && {owner : mongoose.Types.ObjectId(userId)})
-                
+                // ...(userId && {owner : mongoose.Types.ObjectId(userId)})             
             },
         }, 
         {
