@@ -5,9 +5,24 @@ import { deleteFromCloudinary, getPublishIdfromCloudinary, uploadOnClodinary } f
 import {Video}  from "../models/video.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
+import ffmpeg from 'fluent-ffmpeg';
 
 
 import { parse } from "dotenv";
+
+// const getVideoDuration =(videoLocalPath)=>{
+//     return new Promise((resolve,reject)=>{
+//         ffmpeg.ffprobe(videoLocalPath ,(err ,metadata )=>{
+//             if(err){
+//                 reject (err);
+//             }else{
+//                 const duration =  metadata.format.duration;
+//                 resolve(duration);
+//             }
+//         })
+
+//     })
+// }
 
 
 const getAllVideos = asyncHandler(async(req,res)=>{
@@ -99,6 +114,18 @@ const publishVideo = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"VideoFile is required");
     }
 
+
+    // extract duration 
+//    let duration ;
+//    try {
+//     duration =  await getVideoDuration(videoLocalPath);
+//    } catch (error) {
+//     console.log(error)
+//     throw new ApiError(400,"failed to retrive video duration")
+//    }
+
+
+
     const videoFile = await uploadOnClodinary(videoLocalPath)
     // console.log(videoFile) 
 
@@ -130,6 +157,8 @@ const publishVideo = asyncHandler(async(req,res)=>{
             thumbnail : thumbnail?.url, 
             owner : req.user,
             isPublished,
+            duration: 0,
+            
         }
     )
     
@@ -356,7 +385,41 @@ const deleteVideo = asyncHandler(async(req,res)=>{
 
 })
 
-export {publishVideo,getAllVideos,getVideoById,updatedVideo,deleteVideo}
+const incrementVideoView = asyncHandler(async(req,res)=>{
+    const {videoId} = req.params;
+    const userId = req.user?._id
+
+    if(!videoId){
+        throw new ApiError(400,"Video Id is required");
+    }
+
+    // i have to improve this code --> when video is watch then increment the view count
+    const isViewed = await Video.findOne({
+       _id : videoId,
+       watched : userId
+    })
+
+    if(!isViewed){
+        const  updatedVideo = await Video.findByIdAndUpdate(
+            videoId,
+            {$inc : {views : 1},
+            watched : userId    //improve later --> if we keep it in array then it will be expansive to search on it
+        },
+            {new : true}
+        )
+    
+        if(!updatedVideo){
+            throw new ApiError(500,"Failed to update view count");
+        }
+    }
+
+
+    return res.status(200).json(new ApiResponse(200,updatedVideo,"successfully update view count"))
+})
+
+
+
+export {publishVideo,getAllVideos,getVideoById,updatedVideo,deleteVideo , incrementVideoView}
 
 
  

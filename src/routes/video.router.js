@@ -7,7 +7,8 @@ import {publishVideo,
     getAllVideos,
     getVideoById,
     updatedVideo,
-    deleteVideo
+    deleteVideo,
+    incrementVideoView
 } from "../controllars/video.controller.js"
 const router = Router();
 router.use(verifyJWT) ; // apply for all routes
@@ -30,6 +31,6 @@ router.route("/").get(getAllVideos).post(
 );
 
 router.route("/:videoId").get(getVideoById).patch(updatedVideo).delete(deleteVideo)
-
+router.route("/view/:videoId").post(incrementVideoView)
 
 export default router

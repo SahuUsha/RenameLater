@@ -3,6 +3,7 @@ import { Video } from "../models/video.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { User } from "../models/user.model.js";
 
 
 const getChannelStats = asyncHandler(async(req,res)=>{
@@ -20,9 +21,7 @@ const getChannelStats = asyncHandler(async(req,res)=>{
             localField: "_id",
             foreignField : "channel",
             as : "subscribers"
-
         }
-
       },
       {
         $lookup : {
@@ -30,29 +29,44 @@ const getChannelStats = asyncHandler(async(req,res)=>{
             localField : "_id",
             foreignField : "owner",
             as: "videos",
-            pipeline :[
-                {
-                    $lookup:{
-                        from : "likes",
-                        localField : "_id",
-                        foreignField : "likeBy",
-                        as : "likes",
-                        pipeline:[
-                            {
-                                $addFields : {
-                                    Videolikes :{
-                                        $size : "$likes"
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
+            // pipeline:[
+            //     {
+            //         $lookup :{
+            //             from :"likes",
+            //             localField: "_id",
+            //             foreignField: "likedBy",
+            //             as: "likes",
+            //             pipeline :[
+            //                {
+            //                  $addFields:{
+            //                     Videolikes:{
+            //                         $size :"$likes"
+            //                     }
+            //                  }
+            //             }
+            //             ]
+            //         }
+            //     }
+            // ]
         }
+      },
+    //   {
+    //     $unwind:{
+    //         path : "$videos",
+    //         preserveNullAndEmptyArrays : true
+    //     }
+    //   },
+      {
+          $lookup:{
+            from :"likes",
+            localField: "videos._id",
+            foreignField: "video",
+             as: "videos.likes"
+          }
       },
       {
         $addFields :{
+
             totalViews : {
                 $sum : "$videos.views"
             },
@@ -62,16 +76,28 @@ const getChannelStats = asyncHandler(async(req,res)=>{
             totalVideos:{
                 $sum : "$videos"
             },
-            $totalSubscriber : {
+            totalSubscriber : {
                 $sum :" $subscribers"
             }
 
-        }
-      }
-  ])
+            // "videos.likesCount" : {$size : "videos.likes"} ,
+            // "totalSubscriber" : {$size : "$subscribers"}
 
-  if(getChannelStats){
-    throw new ApiError(400 , "channek status is not found")
+        }
+      },
+    //  {
+    //      $group : {
+    //     _id : "$_id",
+    //     totalViews : {$sum : "$videos.views"},
+    //     totalVideos : {$sum : "$videos.likesCount"},
+    //     totalVideos : {$sum : 1},
+
+    //   }
+    // }
+    
+  ])
+  if(!getChannelStats.length){
+    throw new ApiError(400 , "channel status is not found")
   }
 
   return res.status(200).json(new ApiResponse(200, getChannelStats,"successfully get channel status"))

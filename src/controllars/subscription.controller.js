@@ -64,7 +64,6 @@ const getUserChannelSubscriber = asyncHandler(async(req,res)=>{
 return res.status(200).json(
     new ApiResponse(200, {userSubscriber,subscriber}, "Successfully fetched user channel")
 )
-
 })
 
 const getSubscribedChannels = asyncHandler(async(req,res)=>{
@@ -89,4 +88,5 @@ const getSubscribedChannels = asyncHandler(async(req,res)=>{
     )
 })
     
+
 export {toggleSubcription,getUserChannelSubscriber,getSubscribedChannels}
