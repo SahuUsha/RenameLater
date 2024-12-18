@@ -7,12 +7,14 @@ import { User } from "../models/user.model.js";
 
 
 const getChannelStats = asyncHandler(async(req,res)=>{
+    const channelId = req.user._id;
+
      
 
   const getChannelStats = await User.aggregate([
       {
          $match :{
-            _id : new mongoose.Types.ObjectId(req.user._id)
+            _id : new mongoose.Types.ObjectId(channelId)
          }
       },
       {
@@ -50,12 +52,12 @@ const getChannelStats = asyncHandler(async(req,res)=>{
             // ]
         }
       },
-    //   {
-    //     $unwind:{
-    //         path : "$videos",
-    //         preserveNullAndEmptyArrays : true
-    //     }
-    //   },
+      {
+        $unwind:{
+            path : "$videos",
+            preserveNullAndEmptyArrays : true
+        }
+      },
       {
           $lookup:{
             from :"likes",
@@ -67,40 +69,47 @@ const getChannelStats = asyncHandler(async(req,res)=>{
       {
         $addFields :{
 
-            totalViews : {
-                $sum : "$videos.views"
-            },
-            totalLikes :{
-                $sum : "$videos.Videolikes"
-            },
-            totalVideos:{
-                $sum : "$videos"
-            },
-            totalSubscriber : {
-                $sum :" $subscribers"
+            // totalViews : {
+            //     $sum : "$videos.views"
+            // },
+            // totalLikes :{
+            //     $sum : "$videos.Videolikes"
+            // },
+            // totalVideos:{
+            //     $sum : "$videos"
+            // },
+            // totalSubscriber : {
+            //     $sum :" $subscribers"
+            // }
+
+            "videos.likesCount" : {$size : { $ifNull: ["$videos.likes", []] } } ,
+            // "totalSubscriber" : {$size : "$subscribers"}
+            
+        }
+    },
+    {
+        $group : {
+            _id : "$_id",
+            totalViews : {$sum : "$videos.views"},
+            totalLikes : {$sum : "$videos.likesCount"},
+            totalVideos : {$sum : 1},
+            // totalSubscribers: { $size: { $ifNull: ["$subscribers", []] } },
+
+            totalSubscribers : {
+                $sum : {
+                    $cond : [{$isArray : "$subscribers"}, {$size: "$subscribers"},0],
+                }
             }
 
-            // "videos.likesCount" : {$size : "videos.likes"} ,
-            // "totalSubscriber" : {$size : "$subscribers"}
-
-        }
-      },
-    //  {
-    //      $group : {
-    //     _id : "$_id",
-    //     totalViews : {$sum : "$videos.views"},
-    //     totalVideos : {$sum : "$videos.likesCount"},
-    //     totalVideos : {$sum : 1},
-
-    //   }
-    // }
+      }
+    }
     
   ])
   if(!getChannelStats.length){
     throw new ApiError(400 , "channel status is not found")
   }
 
-  return res.status(200).json(new ApiResponse(200, getChannelStats,"successfully get channel status"))
+  return res.status(200).json(new ApiResponse(200, getChannelStats[0],"successfully get channel stats"))
 
 })
 
