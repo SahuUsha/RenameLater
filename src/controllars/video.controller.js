@@ -331,10 +331,6 @@ const deleteforUpdatingVideo = async (videoId , thumbnailLocalPath)=>{
 //     throw new ApiError(404 ,"thumbnailLocalPath is not found")
 //    }
 
-
-
-
-
 // })
 
 
@@ -396,14 +392,14 @@ const incrementVideoView = asyncHandler(async(req,res)=>{
     // i have to improve this code --> when video is watch then increment the view count
     const isViewed = await Video.findOne({
        _id : videoId,
-       watched : userId
+       viewedBy : userId
     })
 
     if(!isViewed){
         const  updatedVideo = await Video.findByIdAndUpdate(
             videoId,
             {$inc : {views : 1},
-            watched : userId    //improve later --> if we keep it in array then it will be expansive to search on it
+            viewedBy : userId    //improve later --> if we keep it in array then it will be expansive to search on it
         },
             {new : true}
         )
